@@ -24,8 +24,8 @@ class SettingsController with ChangeNotifier {
   /// local database or the internet. The controller only knows it can load the
   /// settings from the service.
   Future<void> loadSettings() async {
-    _themeMode = await _settingsService.themeMode();
-
+     _themeMode = await _settingsService.themeMode();
+     
     // Important! Inform listeners a change has occurred.
     notifyListeners();
   }

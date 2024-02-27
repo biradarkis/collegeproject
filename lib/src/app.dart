@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:whereismykid/src/main_screen/choose_driver.dart';
+import 'package:whereismykid/src/onboarding/choose_role.dart';
 import 'package:whereismykid/src/onboarding/login.dart';
 
 import 'sample_feature/sample_item_details_view.dart';
@@ -13,10 +16,11 @@ class MyApp extends StatelessWidget {
   const MyApp({
     super.key,
     required this.settingsController,
+    required this.sharedPreferences
   });
 
   final SettingsController settingsController;
-
+  final SharedPreferences sharedPreferences;
   @override
   Widget build(BuildContext context) {
     // Glue the SettingsController to the MaterialApp.
@@ -32,7 +36,7 @@ class MyApp extends StatelessWidget {
           // returns to the app after it has been killed while running in the
           // background.
           restorationScopeId: 'app',
-
+          debugShowCheckedModeBanner: false,
           // Provide the generated AppLocalizations to the MaterialApp. This
           // allows descendant Widgets to display the correct translations
           // depending on the user's locale.
@@ -64,6 +68,12 @@ class MyApp extends StatelessWidget {
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
           onGenerateRoute: (RouteSettings routeSettings) {
+            Widget widget  = const ChooseDriver();
+
+          var username = sharedPreferences.getString("UserName");
+          if(username ==null){
+            widget = const LoginWidget();
+          }
             return MaterialPageRoute<void>(
               settings: routeSettings,
               builder: (BuildContext context) {
@@ -72,9 +82,10 @@ class MyApp extends StatelessWidget {
                     return SettingsView(controller: settingsController);
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
-                  case SampleItemListView.routeName:
+                  case ChooseRole.routeName:
+                  return const ChooseRole();
                   default:
-                    return const LoginWidget();
+                    return  widget;
                 }
               },
             );
