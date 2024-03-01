@@ -13,11 +13,10 @@ import 'settings/settings_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
-  const MyApp({
-    super.key,
-    required this.settingsController,
-    required this.sharedPreferences
-  });
+  const MyApp(
+      {super.key,
+      required this.settingsController,
+      required this.sharedPreferences});
 
   final SettingsController settingsController;
   final SharedPreferences sharedPreferences;
@@ -68,12 +67,12 @@ class MyApp extends StatelessWidget {
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
           onGenerateRoute: (RouteSettings routeSettings) {
-            Widget widget  = const ChooseDriver();
+            Widget widget = const ChooseDriver();
 
-          var username = sharedPreferences.getString("UserName");
-          if(username ==null){
-            widget = const LoginWidget();
-          }
+            var username = sharedPreferences.getString("UserName");
+            if (username == null) {
+              widget = const LoginWidget();
+            }
             return MaterialPageRoute<void>(
               settings: routeSettings,
               builder: (BuildContext context) {
@@ -83,9 +82,11 @@ class MyApp extends StatelessWidget {
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
                   case ChooseRole.routeName:
-                  return const ChooseRole();
+                    return const ChooseRole();
+                  case ChooseDriver.routeName:
+                    return const ChooseDriver();
                   default:
-                    return  widget;
+                    return const LoginWidget();
                 }
               },
             );

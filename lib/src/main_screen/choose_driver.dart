@@ -16,9 +16,9 @@ class ChooseDriver extends StatefulWidget {
 class ChooseDriverState extends State<ChooseDriver> {
   Future<SharedPreferences> prefsfuture = SharedPreferences.getInstance();
   SharedPreferences? prefs;
- var selectedDriverEmail  = "";
- Widget selectionhint = Text("Select a driver");
- List<Widget>  items  =
+  var selectedDriverEmail = "";
+  Widget selectionhint = const Text("Select a driver");
+  List<Widget> items = [];
   var logger = Logger(
     printer: PrettyPrinter(),
   );
@@ -137,32 +137,37 @@ class ChooseDriverState extends State<ChooseDriver> {
                       ),
                       height: MediaQuery.of(context).size.height * 0.3,
                       width: MediaQuery.of(context).size.width * 0.7,
-                      child: GFDropdown(items: const [
-                        DropdownMenuItem(
-                          value: "Kris1",
-                          child: Text("fsfssf1"),
-                        ),DropdownMenuItem(
-                          value: "Kris2",
-                          child: Text("2fsfssf"),
-                        ),DropdownMenuItem(
-                          value: "Kris22",
-                          child: Text("f22sfssf"),
-                        ),DropdownMenuItem(
-                          value: "Kris22",
-                          child: Text("f22sfssf"),
-                        )
-                      ], onChanged: (s) {},
-                      elevation:3 ,
-                      dropdownButtonColor: Colors.yellow,
-                      icon: const Icon(Icons.drive_eta_rounded,
-                      color: Colors.black),
-                      hint: const Text(TextConstants.selectDriver,style: TextStyle(
-                        color: Colors.black
-),
-),
-),
-)
-],
+                      child: GFDropdown(
+                        items: const [
+                          DropdownMenuItem(
+                            value: "Kris1",
+                            child: Text("fsfssf1"),
+                          ),
+                          DropdownMenuItem(
+                            value: "Kris2",
+                            child: Text("2fsfssf"),
+                          ),
+                          DropdownMenuItem(
+                            value: "Kris22",
+                            child: Text("f22sfssf"),
+                          ),
+                          DropdownMenuItem(
+                            value: "Kris22",
+                            child: Text("f22sfssf"),
+                          )
+                        ],
+                        onChanged: (s) {},
+                        elevation: 3,
+                        dropdownButtonColor: Colors.yellow,
+                        icon: const Icon(Icons.drive_eta_rounded,
+                            color: Colors.black),
+                        hint: const Text(
+                          TextConstants.selectDriver,
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               )
             ],
@@ -170,10 +175,5 @@ class ChooseDriverState extends State<ChooseDriver> {
         ));
   }
 
- List<DropdownMenuItem> _getDriversItems() async{
-      var client   =  HttpClient();
-  var a =   await client.get("",1,"")
-  a.done.ma
-
-  }
+  Future<void> _getDriversItems() async {}
 }

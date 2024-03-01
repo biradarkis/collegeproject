@@ -2,6 +2,9 @@
     package="com.example.whereismykid">
       <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
    <application
         android:label="whereismykid"
         android:name="${applicationName}"

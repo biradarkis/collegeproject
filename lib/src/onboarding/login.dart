@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,6 +7,8 @@ import 'package:whereismykid/src/onboarding/choose_role.dart';
 import 'package:whereismykid/src/onboarding/google_signup_service.dart';
 import '../constants/textconstants.dart';
 import 'package:logger/logger.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
@@ -35,17 +39,17 @@ class LoginWidgetState extends State<LoginWidget> {
     });
     var res = await _firebaseService.signInwithGoogle();
 
-   
     if (res != null) {
       var pref = await _prefs;
 
       await pref.setString("UserName", res.displayName ?? "");
       await pref.setString("UserEmail", res.email);
       await pref.setString("GoogleId", res.id);
-      await pref.setString("PhotoUrl", res.photoUrl  ?? "");
+      await pref.setString("PhotoUrl", res.photoUrl ?? "");
+
       await Navigator.pushReplacementNamed(context, ChooseRole.routeName);
     }
-     setState(() {
+    setState(() {
       isLoading = false;
     });
 
@@ -62,10 +66,10 @@ class LoginWidgetState extends State<LoginWidget> {
   Widget build(BuildContext context) {
     return !isLoading
         ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-           const Text(
+            const Text(
               TextConstants.appname,
               textAlign: TextAlign.center,
-              style:  TextStyle(
+              style: TextStyle(
                   color: Color.fromARGB(255, 12, 181, 203),
                   decoration: TextDecoration.none,
                   fontSize: 25),
