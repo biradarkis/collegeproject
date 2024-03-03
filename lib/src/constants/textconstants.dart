@@ -5,6 +5,7 @@ class TextConstants {
   static const String apiBaseUrl =
       "https://staging.ufony.com/m-ParentConcerns/v2/";
   static const String postUser = "api/user/create";
-  static const String getDrivers = "";
-  static const String selectDriver = "Select your driver";
+  static const String getDrivers = "drivers/all";
+  static const String selectDriver = "Select A Driver";
+  static const String noDriverSelected = "No driver selected";
 }

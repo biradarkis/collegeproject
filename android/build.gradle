@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:7.2.0'
         classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.google.gms:google-services:4.3 q.10'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
     
@@ -17,6 +18,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+          url "${project(':background_fetch').projectDir}/libs"
+}
     }
 }
 

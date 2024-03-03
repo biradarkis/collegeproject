@@ -23,22 +23,44 @@ class ChooseRole extends StatefulWidget {
 }
 
 class _ChooseRoleState extends State<ChooseRole> {
-  final client = HttpClient();
   final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
   bool isLoading = false;
   var logger = Logger(
     printer: PrettyPrinter(),
   );
-  void _handleSaveClick() async {
-    var innerstaatus = await [Permission.location].request();
-
+  Future<void> _handleSaveClick() async {
+    setState(() {
+      isLoading = true;
+    });
     if (_character == Role.Driver) {
-      if (await Permission.location.serviceStatus.isEnabled) {
-        var status = await Permission.location.status;
-        if (!status.isGranted) {
-          var innerstaatus = await [Permission.location].request();
-        }
-      } else {}
+      var status = await Permission.location.status;
+      if (!status.isGranted) {
+        await [Permission.location].request();
+        status = await Permission.location.status;
+      }
+
+      if (status.isGranted) {
+        const snackBar = SnackBar(
+          content: Text('Please turn on GPS to start using the app...'),
+          margin: EdgeInsets.only(bottom: 40),
+          duration: Duration(seconds: 1),
+          behavior: SnackBarBehavior.floating,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else {
+        const snackBar = SnackBar(
+          content:
+              Text('Without location permission this app cannot be used....'),
+          margin: EdgeInsets.only(bottom: 40),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 1),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        await openAppSettings();
+        return;
+      }
     }
 
     var pref = await prefs;
@@ -53,28 +75,47 @@ class _ChooseRoleState extends State<ChooseRole> {
           'Name': pref.getString("UserName") ?? "",
           'email': pref.getString("UserEmail") ?? "",
           'Role': _character == Role.Driver ? "Driver" : "User"
-          // Add any other data you want to send in the body
         }),
       );
       var issuccess = jsonDecode(response.body)["success"] == true;
+      var existingUser = (jsonDecode(response.body)["errorMessage"] as String?)
+          ?.contains("User Already Exists");
+      logger.d(response.body);
 
-      if (response.statusCode == 200 && issuccess) {
-        const snackBar = SnackBar(
-          content: Text('User Successfully Added...'),
-          margin: EdgeInsets.only(bottom: 40),
-          behavior: SnackBarBehavior.floating,
-        );
+      if (response.statusCode == 200 && issuccess ||
+          (existingUser != null && existingUser)) {
+        // const snackBar = SnackBar(
+        //   content: Text('User Successfully Added...'),
+        //   margin: EdgeInsets.only(bottom: 40),
+        //   behavior: SnackBarBehavior.floating,
+        //   duration: Duration(milliseconds: 700),
+        // );
+        setState(() {
+          isLoading = false;
+          // ScaffoldMessenger.of(context)
+          //     .showSnackBar(snackBar)
+          //     .closed
+          //     .then((value) {
+          if (_character == Role.User) {
+            Navigator.pushReplacementNamed(context, ChooseDriver.routeName);
+          }
+          // }
+        });
+      } else {
+        setState(() {
+          const snackBar = SnackBar(
+            content: Scaffold(
+              body: Text('Something went wrong at the server...'),
+            ),
+            margin: EdgeInsets.only(bottom: 40),
+            duration: Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          );
 
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        Navigator.pushReplacementNamed(context, ChooseDriver.routeName);
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          isLoading = false;
+        });
       }
-      const snackBar = SnackBar(
-        content: Text('Something went wrong at the server...'),
-        margin: EdgeInsets.only(bottom: 40),
-        behavior: SnackBarBehavior.floating,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } catch (e) {
       logger.e("Error occuredd!!!!");
       logger.d(e);
@@ -125,11 +166,11 @@ class _ChooseRoleState extends State<ChooseRole> {
                     onChanged: (Role? value) {
                       setState(() {
                         const snackBar = SnackBar(
-                          content:
-                              Text('location permission required for driver'),
-                          margin: EdgeInsets.only(bottom: 40),
-                          behavior: SnackBarBehavior.floating,
-                        );
+                            content:
+                                Text('location permission required for driver'),
+                            margin: EdgeInsets.only(bottom: 40),
+                            behavior: SnackBarBehavior.floating,
+                            duration: Duration(seconds: 1));
 
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         _character = value;
@@ -145,7 +186,9 @@ class _ChooseRoleState extends State<ChooseRole> {
                 )
               ],
             ))
-        : LoadingAnimationWidget.dotsTriangle(
-            color: Colors.white, size: MediaQuery.of(context).size.width * 0.5);
+        : LoadingAnimationWidget.flickr(
+            leftDotColor: Colors.white,
+            rightDotColor: Colors.yellow,
+            size: MediaQuery.of(context).size.width * 0.3);
   }
 }

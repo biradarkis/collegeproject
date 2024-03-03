@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whereismykid/src/main_screen/choose_driver.dart';
 import 'package:whereismykid/src/onboarding/choose_role.dart';
 import 'package:whereismykid/src/onboarding/login.dart';
-
 import 'sample_feature/sample_item_details_view.dart';
-import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 
 /// The Widget that configures your application.
-class MyApp extends StatelessWidget {
+
+class MyApp extends StatefulWidget {
   const MyApp(
       {super.key,
       required this.settingsController,
@@ -20,6 +20,29 @@ class MyApp extends StatelessWidget {
 
   final SettingsController settingsController;
   final SharedPreferences sharedPreferences;
+
+  @override
+  // ignore: no_logic_in_create_state
+  State<MyApp> createState() => _MyAppState(
+      settingsController: settingsController,
+      sharedPreferences: sharedPreferences);
+}
+
+class _MyAppState extends State<MyApp> {
+  _MyAppState(
+      {required this.settingsController, required this.sharedPreferences});
+
+  final SettingsController settingsController;
+  final SharedPreferences sharedPreferences;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  // ignore: unused_field
+
+  // ignore: unused_field
+
   @override
   Widget build(BuildContext context) {
     // Glue the SettingsController to the MaterialApp.
@@ -67,6 +90,7 @@ class MyApp extends StatelessWidget {
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
           onGenerateRoute: (RouteSettings routeSettings) {
+            // ignore: unused_local_variable
             Widget widget = const ChooseDriver();
 
             var username = sharedPreferences.getString("UserName");

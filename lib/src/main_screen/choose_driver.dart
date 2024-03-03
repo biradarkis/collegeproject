@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whereismykid/src/constants/textconstants.dart';
+import 'package:http/http.dart' as http;
+import 'package:whereismykid/src/records/user.dart';
 
 class ChooseDriver extends StatefulWidget {
   static const routeName = 'chooseDriver';
@@ -17,17 +19,52 @@ class ChooseDriverState extends State<ChooseDriver> {
   Future<SharedPreferences> prefsfuture = SharedPreferences.getInstance();
   SharedPreferences? prefs;
   var selectedDriverEmail = "";
-  Widget selectionhint = const Text("Select a driver");
-  List<Widget> items = [];
-  var logger = Logger(
-    printer: PrettyPrinter(),
+  final Logger logger = Logger(printer: PrettyPrinter());
+  Widget selectionhint = const Text(
+    TextConstants.noDriverSelected,
+    style: TextStyle(color: Colors.black),
   );
+  List<DropdownMenuItem<String>> items = [];
   dynamic image;
   String userName = "";
   @override
   void initState() {
-    _getImage();
     super.initState();
+    _getImage();
+    _getDriversItems();
+  }
+
+  _getDriversItems() {
+    String response;
+    http.get(Uri.parse(TextConstants.apiBaseUrl + TextConstants.getDrivers),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        }).then((value) {
+      response = value.body;
+
+      if (value.statusCode != 200) {
+        const snackBar = SnackBar(
+          content: Text('Something went wrong at the server...'),
+          margin: EdgeInsets.only(bottom: 40),
+          duration: Duration(seconds: 1),
+          behavior: SnackBarBehavior.floating,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+      logger.d(response);
+      var users = List<User>.from((jsonDecode(response) as List<dynamic>)
+          .map((e) => User.fromJson(e))
+          .toList());
+      setState(() {
+        items = users
+            .map((e) => DropdownMenuItem(
+                value: e.name,
+                child:
+                    Text(e.name, style: const TextStyle(color: Colors.white))))
+            .toList();
+      });
+    });
   }
 
   _getImage() {
@@ -45,15 +82,12 @@ class ChooseDriverState extends State<ChooseDriver> {
         logger.d("loggin username...........");
 
         if (url != null && url!.isNotEmpty) {
-          logger.wtf("what the fuck logger");
           image = NetworkImage(url ?? "");
         } else {
           image = const AssetImage("assets/images/defaultuseravtar.png");
         }
       });
     });
-
-    super.initState();
   }
 
   @override
@@ -131,42 +165,32 @@ class ChooseDriverState extends State<ChooseDriver> {
                       ),
                     ),
                     Container(
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: Colors.white,
-                      ),
-                      height: MediaQuery.of(context).size.height * 0.3,
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      child: GFDropdown(
-                        items: const [
-                          DropdownMenuItem(
-                            value: "Kris1",
-                            child: Text("fsfssf1"),
-                          ),
-                          DropdownMenuItem(
-                            value: "Kris2",
-                            child: Text("2fsfssf"),
-                          ),
-                          DropdownMenuItem(
-                            value: "Kris22",
-                            child: Text("f22sfssf"),
-                          ),
-                          DropdownMenuItem(
-                            value: "Kris22",
-                            child: Text("f22sfssf"),
-                          )
-                        ],
-                        onChanged: (s) {},
-                        elevation: 3,
-                        dropdownButtonColor: Colors.yellow,
-                        icon: const Icon(Icons.drive_eta_rounded,
-                            color: Colors.black),
-                        hint: const Text(
-                          TextConstants.selectDriver,
-                          style: TextStyle(color: Colors.black),
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          color: Colors.white,
                         ),
-                      ),
-                    )
+                        height: MediaQuery.of(context).size.height * 0.3,
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        child: SizedBox(
+                            height: 10,
+                            width: MediaQuery.of(context).size.width,
+                            child: DropdownButtonHideUnderline(
+                              child: GFDropdown(
+                                items: items,
+                                onChanged: (s) {
+                                  setState(() {
+                                    selectionhint = Text(s ?? "",
+                                        style: const TextStyle(
+                                            color: Colors.black));
+                                  });
+                                },
+                                elevation: 3,
+                                dropdownButtonColor: Colors.yellow,
+                                icon: const Icon(Icons.drive_eta_rounded,
+                                    color: Colors.black),
+                                hint: selectionhint,
+                              ),
+                            )))
                   ],
                 ),
               )
@@ -174,6 +198,4 @@ class ChooseDriverState extends State<ChooseDriver> {
           ),
         ));
   }
-
-  Future<void> _getDriversItems() async {}
 }
